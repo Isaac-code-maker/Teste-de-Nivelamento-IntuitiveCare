@@ -4,9 +4,9 @@ import zipfile
 import os
 
 # Criar pasta para downloads no diretório atual
-pasta_downloads = os.path.join(os.path.dirname(__file__), "downloads")
-if not os.path.exists(pasta_downloads):
-    os.makedirs(pasta_downloads)
+pasta_resultados = os.path.join(os.path.dirname(__file__), "resultados")
+if not os.path.exists(pasta_resultados):
+    os.makedirs(pasta_resultados)
 
 url = "https://www.gov.br/ans/pt-br/acesso-a-informacao/participacao-da-sociedade/atualizacao-do-rol-de-procedimentos"
 try:
@@ -26,7 +26,7 @@ for link in soup.find_all('a', href=True):
 
 # Baixar os PDFs
 for pdf_link in pdf_links:
-    pdf_name = os.path.join(pasta_downloads, pdf_link.split('/')[-1])
+    pdf_name = os.path.join(pasta_resultados, pdf_link.split('/')[-1])
     try:
         response = requests.get(pdf_link, timeout=30)
         if response.status_code == 200:
@@ -39,13 +39,13 @@ for pdf_link in pdf_links:
         print(f"Erro ao baixar {pdf_name}: {e}")
 
 # Compactar em ZIP apenas se houver PDFs
-pdfs_na_pasta = [f for f in os.listdir(pasta_downloads) if f.endswith('.pdf')]
+pdfs_na_pasta = [f for f in os.listdir(pasta_resultados) if f.endswith('.pdf')]
 if pdfs_na_pasta:
-    zip_path = os.path.join(pasta_downloads, 'Anexos.zip')
+    zip_path = os.path.join(pasta_resultados, 'Anexos.zip')
     try:
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             for arquivo in pdfs_na_pasta:
-                caminho_completo = os.path.join(pasta_downloads, arquivo)
+                caminho_completo = os.path.join(pasta_resultados, arquivo)
                 zipf.write(caminho_completo, arquivo)
         print(f"Arquivo ZIP criado com sucesso: {zip_path}")
     except Exception as e:
