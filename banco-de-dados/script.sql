@@ -43,18 +43,18 @@ GROUP BY reg_ans
 ORDER BY total_despesas DESC
 LIMIT 10;
 
+SELECT MIN(data) AS primeira_data, MAX(data) AS ultima_data FROM demonstracoes_contabeis;
+
+
 
 
 -- Query analítica para encontrar as 10 operadoras com maiores despesas no último ano
-SELECT reg_ans, SUM(vl_saldo_final - vl_saldo_inicial) AS total_despesas
+SELECT reg_ans, 
+       SUM(COALESCE(vl_saldo_final, 0) - COALESCE(vl_saldo_inicial, 0)) AS total_despesas
 FROM demonstracoes_contabeis
-WHERE descricao ILIKE '%SINISTROS CONHECIDOS OU AVISADOS DE ASSISTÊNCIA A SAÚDE MEDICO HOSPITALAR%'
-AND data >= (CURRENT_DATE - INTERVAL '12 months')
+WHERE LOWER(descricao) LIKE '%sinistro%'
+AND data >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
 GROUP BY reg_ans
 ORDER BY total_despesas DESC
 LIMIT 10;
 
-
-SELECT DISTINCT descricao 
-FROM demonstracoes_contabeis 
-WHERE LOWER(descricao) LIKE '%sinistro%';
