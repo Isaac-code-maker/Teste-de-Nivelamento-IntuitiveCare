@@ -1,3 +1,9 @@
+create database testenivelamento;
+use testenivelamento;
+
+
+SHOW VARIABLES LIKE 'secure_file_priv';
+
 -- Estrutura da tabela para armazenar os dados contábeis das operadoras
 CREATE TABLE demonstracoes_contabeis (
     id SERIAL PRIMARY KEY,
@@ -16,7 +22,7 @@ DELIMITER ';'
 CSV HEADER;
 
 -- Comando para importar dados do CSV (MySQL)
-LOAD DATA INFILE '/caminho/para/arquivo.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\4T2024.csv'
 INTO TABLE demonstracoes_contabeis
 FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
@@ -26,14 +32,18 @@ IGNORE 1 ROWS
 SET vl_saldo_inicial = REPLACE(@vl_saldo_inicial, ',', '.'),
     vl_saldo_final = REPLACE(@vl_saldo_final, ',', '.');
 
+
 -- Query analítica para encontrar as 10 operadoras com maiores despesas no último trimestre
-SELECT reg_ans, SUM(vl_saldo_final - vl_saldo_inicial) AS total_despesas
+SELECT reg_ans, 
+       SUM(COALESCE(vl_saldo_final, 0) - COALESCE(vl_saldo_inicial, 0)) AS total_despesas
 FROM demonstracoes_contabeis
-WHERE descricao ILIKE '%SINISTROS CONHECIDOS OU AVISADOS DE ASSISTÊNCIA A SAÚDE MEDICO HOSPITALAR%'
-AND data >= (CURRENT_DATE - INTERVAL '3 months')
+WHERE LOWER(descricao) LIKE '%sinistro%'
+AND data >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
 GROUP BY reg_ans
 ORDER BY total_despesas DESC
 LIMIT 10;
+
+
 
 -- Query analítica para encontrar as 10 operadoras com maiores despesas no último ano
 SELECT reg_ans, SUM(vl_saldo_final - vl_saldo_inicial) AS total_despesas
@@ -43,3 +53,8 @@ AND data >= (CURRENT_DATE - INTERVAL '12 months')
 GROUP BY reg_ans
 ORDER BY total_despesas DESC
 LIMIT 10;
+
+
+SELECT DISTINCT descricao 
+FROM demonstracoes_contabeis 
+WHERE LOWER(descricao) LIKE '%sinistro%';
