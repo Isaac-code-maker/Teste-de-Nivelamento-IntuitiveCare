@@ -5,11 +5,12 @@
       <input 
         type="text" 
         v-model="termo" 
-        @input="buscarOperadoras" 
+         
         placeholder="Digite o nome da operadora"
         :disabled="carregando"
       />
       <div v-if="carregando" class="loading">Carregando...</div>
+      <button v-on:click="buscarOperadoras">Buscar</button>  
     </div>
 
     <div v-if="erro" class="erro">
@@ -17,9 +18,8 @@
     </div>
 
     <div v-if="operadoras.length" class="resultados">
-      <div v-for="operadora in operadoras" :key="operadora.Registro_ANS" class="operadora-card">
+      <div v-for="(operadora, index) in operadoras" :key="operadora.Registro_ANS || index" class="operadora-card">
         <h3>{{ operadora.Razao_Social }}</h3>
-        <p v-if="operadora.Nome_Fantasia">Nome Fantasia: {{ operadora.Nome_Fantasia }}</p>
         <p>Modalidade: {{ operadora.Modalidade }}</p>
         <p>CNPJ: {{ operadora.CNPJ }}</p>
         <p>Endereço: {{ operadora.Logradouro }}, {{ operadora.Numero }} - {{ operadora.Bairro }}</p>
@@ -57,6 +57,7 @@ export default {
 
       try {
         const response = await axios.get(`http://127.0.0.1:5000/buscar?termo=${this.termo}`);
+        console.log(response.data)
         this.operadoras = response.data;
       } catch (error) {
         console.error("Erro ao buscar operadoras:", error);

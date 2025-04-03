@@ -1,13 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+import os
 
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para todas as rotas
+CORS(app)  
 
-# Carregar o CSV
+
 try:
-    df = pd.read_csv("Relatorio_cadop.csv", sep=';')  # Arquivo está no mesmo diretório e usa ponto e vírgula como separador
+    # Obtém o diretório do script atual
+    diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+    print(diretorio_atual)
+
+    # Constrói o caminho correto do arquivo CSV
+    caminho_arquivo = os.path.join(diretorio_atual, "", "Relatorio_cadop.csv")
+
+    # Carrega o CSV com separador ';'
+    df = pd.read_csv(caminho_arquivo, sep=';')  
     print("CSV carregado com sucesso!")
 except Exception as e:
     print(f"Erro ao carregar o CSV: {str(e)}")
@@ -15,6 +24,7 @@ except Exception as e:
 
 @app.route('/teste', methods=['GET'])
 def teste():
+    print(os.path.dirname(os.path.abspath("/api/operadora-search/Relatorio_cadop.csv")))
     return jsonify({"status": "ok", "mensagem": "Servidor está funcionando!"})
 
 @app.route('/buscar', methods=['GET'])
